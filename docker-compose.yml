@@ -7,6 +7,8 @@ services:
     image: "mysql"
     ports:
       - "3307:3307"
+    volumes: 
+      - ./master.cnf:/etc/mysql/conf.d/mysql.conf.cnf
     environment:
       - MYSQL_ROOT_PASSWORD=mysql1
       - MYSQL_TCP_PORT=3307
@@ -18,12 +20,16 @@ services:
     image: "mysql"
     ports:
       - "3308:3308"
+    volumes: 
+      - ./replica.cnf:/etc/mysql/conf.d/mysql.conf.cnf
     environment:
       - MYSQL_ROOT_PASSWORD=mysql2
       - MYSQL_TCP_PORT=3308
       - MYSQL_USER=monitoruser
       - MYSQL_PASSWORD=monitorpass
       - MYSQL_DATABASE=application
+    links: 
+      - "mysql1:mysql1"
   mysqlproxy:
     container_name: mysqlproxy
     image: "proxysql/proxysql"

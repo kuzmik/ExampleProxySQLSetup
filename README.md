@@ -1,3 +1,14 @@
+## Starting up
+
+```
+docker-compose rm --force
+docker-compose up
+
+# Wait
+./setup_replication.sh
+
+```
+
 ## Checking the ProxySQL
 
 ```
