@@ -27,3 +27,10 @@ mysql --protocol tcp  -P 3308 -u root -pmysql2
 ```
 mysql --protocol tcp -P 16033 -u monitoruser -pmonitorpass
 ```
+
+## Add Some Data
+
+```
+mysql --protocol tcp  -P 3307 -u root -pmysql1 < users.sql
+```
+
