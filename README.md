@@ -3,6 +3,8 @@
 ![img](./replication_setup.png)
 
 
+This is a dockerized example of ProxySQL routing requests between a set of replicated MySQL databases.
+
 
 ### Starting up
 
