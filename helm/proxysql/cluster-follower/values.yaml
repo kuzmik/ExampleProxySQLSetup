@@ -1,0 +1,33 @@
+replicaCount: 3
+
+image:
+  repository: proxysql/proxysql
+  tag: 2.5.5-debian
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+nameOverride: ""
+
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 6033
+
+ingress:
+  enabled: false
+  annotations: {}
+  hosts:
+    - host: 10.18.120.41
+      paths: []
+
+  tls: []
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

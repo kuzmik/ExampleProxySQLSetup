@@ -1,46 +1,38 @@
-# ProxySQL for Replicated Databases
+# ProxySQL CLuster for Replicated Databases
 
-![img](./replication_setup.png)
+## Setup
 
+This assumes you have a k8s cluster on hand; we're installing some helm charts into it.
 
-This is a dockerized example of ProxySQL routing requests between a set of replicated MySQL databases.
+### Create the MySQL cluster
 
+We'll create one primary and one secondary mysql instance, and make sure they are replicating. We're using the bitnami mysql charts for this.
 
-### Starting up
-
-```
-docker-compose rm --force
-docker-compose up
-
-# Wait
-./setup_replication.sh
-
+```bash
+# create the mysql primary and replica servers in the mysql namespace
+kubectl create ns mysql
+helm install mysql -n mysql ./helm/mysql
 ```
 
-### Checking the ProxySQL
+### Create the ProxySQL cluster
 
-```
-mysql -u radmin -pradmin --protocol=tcp -h 127.0.0.1 -P16032 --prompt='RAdmin> '
-```
+For this step, we're creating a proxysql controller statefulset and a proxysql cluster deployment. The controller is the "leader" and is in charge of distributing the configuration changes to the followers. The followers are configured to automatically connect to the leader.
 
-### Connecting to the two MySQL DBs
-
-```
-mysql --protocol tcp  -P 3307 -u root -pmysql1
-mysql --protocol tcp  -P 3308 -u root -pmysql2
+```bash
+# create the proxysql leader and followers in the proxysql namespace
+kubectl create ns proxysql
+helm install proxysql-cluster-controller -n proxysql ./helm/proxysql/cluster-controller
+helm install proxysql-cluster -n proxysql ./helm/proxysql/cluster-follower
 ```
 
-### Connectiong through the proxy
+## Teardown
 
-```
-mysql --protocol tcp -P 16033 -u monitoruser -pmonitorpass
-```
+```bash
+helm uninstall -n proxysql proxysql-cluster
+helm uninstall -n proxysql proxysql-cluster-controller
 
-### Add Some Data
+helm uninstall -n mysql mysql
 
+kubectl delete ns proxysql
+kubectl delete ns mysql
 ```
-mysql --protocol tcp  -P 3307 -u root -pmysql1 < users.sql
-```
-### Testing scenario
-
-[Step by Step Instructions](./TESTING.md)
