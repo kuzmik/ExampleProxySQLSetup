@@ -1,48 +1,92 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'digest'
 require 'json'
 require 'net/http'
 require 'pathname'
 require 'uri'
 
-directory = '/run/secrets/kubernetes.io/serviceaccount'
+# query the k8s rest api and get a list of the pods in the controller cluster
+# returns a hash of { pod_ip => pod_hostname } for all the contoller pods
+def get_pod_info
+  directory = '/run/secrets/kubernetes.io/serviceaccount'
+  namespace = File.read(Pathname.new("#{directory}/namespace").realpath)
+  token = File.read(Pathname.new("#{directory}/token").realpath)
 
-namespace = File.read(Pathname.new("#{directory}/namespace").realpath)
-token = File.read(Pathname.new("#{directory}/token").realpath)
+  uri = URI("https://kubernetes.default.svc/api/v1/namespaces/#{namespace}/pods")
 
-uri = URI("https://kubernetes.default.svc/api/v1/namespaces/#{namespace}/pods")
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = true
+  http.ca_file = Pathname.new("#{directory}/ca.crt").realpath.to_s
 
-http = Net::HTTP.new(uri.host, uri.port)
-http.use_ssl = true
-http.ca_file = Pathname.new("#{directory}/ca.crt").realpath.to_s
+  request = Net::HTTP::Get.new(uri)
+  request['Authorization'] = "Bearer #{token}" # Set the Authorization header
 
-request = Net::HTTP::Get.new(uri)
-request['Authorization'] = "Bearer #{token}" # Set the Authorization header
+  response = http.request(request)
 
-response = http.request(request)
+  unless response.is_a?(Net::HTTPSuccess)
+    puts "Request failed with code: #{response.code}"
+    puts "Error message: #{response.body}"
+    exit 1
+  end
 
-unless response.is_a?(Net::HTTPSuccess)
-  puts "Request failed with code: #{response.code}"
-  puts "Error message: #{response.body}"
-  exit 1
+  data = JSON.parse(response.body)
+  items = data['items']
+
+  # filter the pod info, and create a hash of { ip: hostname }
+  # we're also sorting it, so that we can use it for hashing the checksum
+  items.reject  { |pod| pod['metadata']['labels']['app.kubernetes.io/instance'] == 'proxysql-cluster' }
+       .collect { |pod| { pod['status']['podIP'] => pod['metadata']['name'] } }
+       .reduce({}, :merge)
+       .sort
 end
 
-data = JSON.parse(response.body)
-pods = data['items']
+# take a pod info hash and create a string of sql commands to use in proxysql
+def create_commands(pods)
+  output = ['DELETE FROM proxysql_servers']
 
-puts 'DELETE FROM proxysql_servers;'
+  pods.each do |pi|
+    output.append "INSERT INTO proxysql_servers VALUES ('#{pi[0]}', 6032, 0, '#{pi[1]}')"
+  end
 
-filtered_pods = pods.reject { |p| p['metadata']['labels']['app'] == 'proxysql-admin' }
-filtered_pods.each do |pod|
-  pod_ip = pod['status']['podIP']
-  pod_name = pod['metadata']['name']
+  output.append 'LOAD PROXYSQL SERVERS TO RUNTIME'
+  output.append 'LOAD MYSQL SERVERS TO RUNTIME'
+  output.append 'LOAD MYSQL USERS TO RUNTIME'
+  output.append 'LOAD MYSQL QUERY RULES TO RUNTIME;'
 
-  sql_statement = "INSERT INTO proxysql_servers VALUES ('#{pod_ip}', 6032, 0, '#{pod_name}');"
-  puts sql_statement
+  output.join('; ')
 end
 
-puts 'LOAD PROXYSQL SERVERS TO RUNTIME;'
-puts 'LOAD MYSQL SERVERS TO RUNTIME;'
-puts 'LOAD MYSQL USERS TO RUNTIME;'
-puts 'LOAD MYSQL QUERY RULES TO RUNTIME;'
+# take a checksum of the pod_info hash; the hash is sorted in the get_pod_info method,
+# just in case the pods ever get returned in a different order
+def checksum(pods)
+  checksum_file = '/tmp/pods-cs.txt'
+
+  digest = Digest::SHA256.hexdigest(pods.to_s)
+
+  unless File.exist?(checksum_file)
+    # write checksum to file for next run
+    File.write(checksum_file, digest)
+    return
+  end
+
+  old = File.read(checksum_file)
+
+  if old == digest
+    # puts "#{checksum_file} - Digests match, nothing to do"
+    exit 0
+  end
+
+  # write checksum to file for next run
+  File.write(checksum_file, digest)
+end
+
+pods = get_pod_info
+
+checksum(pods)
+
+commands = create_commands(pods)
+
+system("mysql -h127.0.0.1 -P6032 -uadmin -padmin -NB -e\"#{commands}\"")
+puts "Ran commands: #{commands}"

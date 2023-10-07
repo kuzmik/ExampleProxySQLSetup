@@ -1,5 +1,6 @@
 datadir="/var/lib/proxysql"
 
+# define the admin variables
 admin_variables=
 {
   admin_credentials                           = "admin:admin;radmin:radmin"
@@ -49,15 +50,27 @@ mysql_variables=
 mysql_servers =
 (
   {
-    address           = "mysql-primary.mysql.svc.cluster.local"
+    address           = "mysql-us1-primary.mysql.svc.cluster.local"
     port              = 3306
-    hostgroup         = 1
+    hostgroup         = 10
     max_connections   = 5000
   },
   {
-    address           = "mysql-secondary.mysql.svc.cluster.local"
+    address           = "mysql-us1-secondary.mysql.svc.cluster.local"
     port              = 3306
-    hostgroup         = 1
+    hostgroup         = 11
+    max_connections   = 5000
+  },
+  {
+    address           = "mysql-us2-primary.mysql.svc.cluster.local"
+    port              = 3306
+    hostgroup         = 20
+    max_connections   = 5000
+  },
+  {
+    address           = "mysql-us2-secondary.mysql.svc.cluster.local"
+    port              = 3306
+    hostgroup         = 21
     max_connections   = 5000
   },
 )
@@ -66,38 +79,36 @@ mysql_servers =
 mysql_users:
 (
   {
-    username          = "root"
-    password          = "rootpw"
-    default_hostgroup = 0
+    username          = "persona-web-us1"
+    password          = "persona-web-us1"
+    default_hostgroup = 10
+    active            = 1
+  },
+  {
+    username          = "persona-web-us2"
+    password          = "persona-web-us2"
+    default_hostgroup = 20
     active            = 1
   },
 )
 
-#defines MySQL Query Rules
+# defines MySQL Query Rules
 mysql_query_rules:
 (
 )
 
-#scheduler=
-#(
-#  {
-#    id          = 1
-#    active      = 1
-#    interval_ms = 5000
-#    filename    = "/bin/bash"
-#    arg1        = "/tmp/hg-scheduler.bash"
-#    arg2        = ""
-#    arg3        = ""
-#    arg4        = ""
-#    arg5        = ""
-#  }
-#)
-
-mysql_replication_hostgroups=
+# defines the scheduler processes
+scheduler=
 (
   {
-    writer_hostgroup  = 0
-    reader_hostgroup  = 1
-    comment           = "RHG1"
+    id          = 1
+    active      = 1
+    interval_ms = 10000
+    filename    = "/usr/bin/ruby"
+    arg1        = "/tmp/cluster.rb"
+    arg2        = ""
+    arg3        = ""
+    arg4        = ""
+    arg5        = ""
   }
 )
