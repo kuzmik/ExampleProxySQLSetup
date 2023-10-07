@@ -42,6 +42,12 @@ spec:
             - name: {{ .Release.Name }}-config
               mountPath: /tmp/hg-scheduler.bash
               subPath: hg-scheduler.bash
+            - name: {{ .Release.Name }}-config
+              mountPath: /tmp/cluster.rb
+              subPath: cluster.rb
+            - name: {{ .Release.Name }}-config
+              mountPath: /root/.my.cnf
+              subPath: my.cnf
             - mountPath: /var/lib/proxysql
               name: proxysql-var
               readOnly: false

@@ -7,3 +7,5 @@ data:
 {{ tpl (.Files.Get "files/proxysql.cnf") . | indent 4 }}
   probe-proxysql.bash: |
 {{ tpl (.Files.Get "files/probe-proxysql.bash") . | indent 4 }}
+  my.cnf: |
+{{ tpl (.Files.Get "files/my.cnf") . | indent 4 }}

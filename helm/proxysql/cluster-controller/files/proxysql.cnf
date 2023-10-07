@@ -29,7 +29,7 @@ mysql_variables=
   interfaces                                  = "0.0.0.0:6033"
   default_schema                              = "information_schema"
   stacksize                                   = 1048576
-  server_version                              = "8.0.20"
+  server_version                              = "8.0.34"
   connect_timeout_server                      = 3000
   monitor_username                            = "root"
   monitor_password                            = "rootpw"
@@ -78,20 +78,20 @@ mysql_query_rules:
 (
 )
 
-scheduler=
-(
-  {
-    id          = 1
-    active      = 1
-    interval_ms = 5000
-    filename    = "/bin/bash"
-    arg1        = "/tmp/hg-scheduler.bash"
-    arg2        = ""
-    arg3        = ""
-    arg4        = ""
-    arg5        = ""
-  }
-)
+#scheduler=
+#(
+#  {
+#    id          = 1
+#    active      = 1
+#    interval_ms = 5000
+#    filename    = "/bin/bash"
+#    arg1        = "/tmp/hg-scheduler.bash"
+#    arg2        = ""
+#    arg3        = ""
+#    arg4        = ""
+#    arg5        = ""
+#  }
+#)
 
 mysql_replication_hostgroups=
 (

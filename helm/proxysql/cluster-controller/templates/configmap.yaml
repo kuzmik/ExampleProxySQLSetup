@@ -9,3 +9,7 @@ data:
 {{ tpl (.Files.Get "files/probe-proxysql.bash") . | indent 4 }}
   hg-scheduler.bash: |
 {{ tpl (.Files.Get "files/hg-scheduler.bash") . | indent 4 }}
+  cluster.rb: |
+{{ tpl (.Files.Get "files/cluster.rb") . | indent 4 }}
+  my.cnf: |
+{{ tpl (.Files.Get "files/my.cnf") . | indent 4 }}
