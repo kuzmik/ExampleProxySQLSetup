@@ -28,7 +28,7 @@ global:
 kubeVersion: ""
 ## @param nameOverride String to partially override common.names.fullname template (will maintain the release name)
 ##
-nameOverride: "mysql-us1"
+nameOverride: ""
 ## @param fullnameOverride String to fully override common.names.fullname template
 ##
 fullnameOverride: ""
@@ -105,14 +105,14 @@ image:
   debug: false
 ## @param architecture MySQL architecture (`standalone` or `replication`)
 ##
-architecture: replication
+architecture: standalone
 ## MySQL Authentication parameters
 ##
 auth:
   ## @param auth.rootPassword Password for the `root` user. Ignored if existing secret is provided
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mysql#setting-the-root-password-on-first-run
   ##
-  rootPassword: "rootpw"
+  rootPassword: ""
   ## @param auth.createDatabase Whether to create the .Values.auth.database or not
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mysql#creating-a-database-on-first-run
   ##
@@ -120,21 +120,21 @@ auth:
   ## @param auth.database Name for a custom database to create
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mysql#creating-a-database-on-first-run
   ##
-  database: "persona-web-us1_local"
+  database: "my_database"
   ## @param auth.username Name for a custom user to create
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mysql#creating-a-database-user-on-first-run
   ##
-  username: "persona-web-us1"
+  username: ""
   ## @param auth.password Password for the new user. Ignored if existing secret is provided
   ##
-  password: "persona-web-us1"
+  password: ""
   ## @param auth.replicationUser MySQL replication user
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mysql#setting-up-a-replication-cluster
   ##
   replicationUser: replicator
   ## @param auth.replicationPassword MySQL replication user password. Ignored if existing secret is provided
   ##
-  replicationPassword: "replication"
+  replicationPassword: ""
   ## @param auth.existingSecret Use existing secret for password details. The secret has to contain the keys `mysql-root-password`, `mysql-replication-password` and `mysql-password`
   ## NOTE: When it's set the auth.rootPassword, auth.password, auth.replicationPassword are ignored.
   ##
@@ -214,7 +214,6 @@ primary:
     pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
     log-error=/opt/bitnami/mysql/logs/mysqld.log
     character-set-server=UTF8
-    collation-server=utf8_general_ci
     slow_query_log=0
     long_query_time=10.0
 
@@ -592,7 +591,6 @@ secondary:
     pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
     log-error=/opt/bitnami/mysql/logs/mysqld.log
     character-set-server=UTF8
-    collation-server=utf8_general_ci
     slow_query_log=0
     long_query_time=10.0
 
@@ -1258,4 +1256,3 @@ metrics:
     ##      summary: MariaDB instance is down
     ##
     rules: []
-
