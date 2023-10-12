@@ -53,11 +53,11 @@ mysql_variables=
   # or in our case, on a just one server basis.
   have_ssl                                    = true
 
-  # query_digests_keep_comment                = true
-  # query_digests_lowercase                   = true
-  # query_digests_no_digits                   = false
-  # query_digests_normalize_digest_text       = true
-  # query_digests_replace_null                = true
+  query_digests_keep_comment                = true
+  query_digests_lowercase                   = true
+  query_digests_no_digits                   = false
+  query_digests_normalize_digest_text       = false
+  query_digests_replace_null                = true
 
   monitor_username                            = "root"
   monitor_password                            = "rootpw"
@@ -156,7 +156,7 @@ scheduler=
     active      = 1
     interval_ms = 10000
     filename    = "/usr/bin/ruby"
-    arg1        = "/tmp/cluster.rb"
+    arg1        = "/usr/local/bin/maintain-cluster.rb"
     arg2        = ""
     arg3        = ""
     arg4        = ""

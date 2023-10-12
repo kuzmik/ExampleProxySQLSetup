@@ -21,6 +21,7 @@ us1_user=$(mysql --defaults-extra-file="$DIR/.lib/us1-client.cfg"  -h"$proxysql_
 assert_eq "rick@persona-us1.com" "$us1_user" "Not equivalent"
 echo "us1_primary user: rick@persona-us1.com == $us1_user"
 
+echo ''
 echo "----- us1 secondary -----"
 
 us1_ro_hostname=$(mysql --defaults-extra-file="$DIR/.lib/us1-ro-client.cfg" -h"$proxysql_instance" -P6033 -NB -e 'select @@hostname')
@@ -35,6 +36,7 @@ us1_secondary_user=$(mysql --defaults-extra-file="$DIR/.lib/us1-client.cfg"  -h"
 assert_eq "rick@persona-us1.com" "$us1_user" "Not equivalent"
 echo "us1_secondary user: rick@persona-us1.com == $us1_user"
 
+echo ''
 echo "----- us2 primary -----"
 
 us2_hostname=$(mysql --defaults-extra-file="$DIR/.lib/us2-client.cfg" -h"$proxysql_instance" -P6033 -NB -e 'select @@hostname')
@@ -49,6 +51,7 @@ us2_user=$(mysql --defaults-extra-file="$DIR/.lib/us2-client.cfg"  -h"$proxysql_
 assert_eq "charles@persona-us2.com" "$us2_user" "Not equivalent"
 echo "us2_primary user: charles@persona-us2.com == $us2_user"
 
+echo ''
 echo "----- us2 secondary -----"
 
 us2_ro_hostname=$(mysql --defaults-extra-file="$DIR/.lib/us2-ro-client.cfg" -h"$proxysql_instance" -P6033 -NB -e 'select @@hostname')
@@ -64,5 +67,5 @@ assert_eq "charles@persona-us2.com" "$us2_user" "Not equivalent"
 echo "us2_secondary user: charles@persona-us2.com == $us2_user"
 
 echo ''
-echo '----- all tests passed, insert emojis here -----'
+echo '-*-*-*-*- all tests passed, insert emojis here -*-*-*-*-'
 echo ''

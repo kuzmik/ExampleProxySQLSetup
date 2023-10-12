@@ -45,12 +45,30 @@ mysql_variables=
   connect_retries_on_failure                  = 10
 }
 
+# default proxysql-leader service, that fronts the proxysql-leader stateful set; followers connect to this
+# on boot (or on reload by the scheduled script) to fetch configuration from the leaders.
 proxysql_servers =
 (
     {
-        hostname  = "proxysql-cluster-controller"
+        hostname  = "proxysql-leader"
         port      = 6032
         weight    = 0
-        comment   = "proxysql-cluster-controller"
+        comment   = "default servers from config"
     }
+)
+
+# defines the scheduler processes
+scheduler=
+(
+  {
+    id          = 1
+    active      = 1
+    interval_ms = 10000
+    filename    = "/usr/bin/ruby"
+    arg1        = "/usr/local/bin/maintain-cluster.rb"
+    arg2        = ""
+    arg3        = ""
+    arg4        = ""
+    arg5        = ""
+  }
 )

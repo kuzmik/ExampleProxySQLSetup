@@ -20,15 +20,6 @@ service:
   type: ClusterIP
   port: 6032
 
-ingress:
-  enabled: false
-  annotations: {}
-  hosts:
-    - host: 10.18.120.41
-      paths: []
-
-  tls: []
-
 resources: {}
 
 nodeSelector: {}

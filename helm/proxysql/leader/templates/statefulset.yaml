@@ -33,6 +33,9 @@ spec:
               containerPort: 6032
               protocol: TCP
           volumeMounts:
+            - mountPath: /var/lib/proxysql
+              name: proxysql-var
+              readOnly: false
             - name: {{ .Release.Name }}-config
               mountPath: /usr/local/bin/probe-proxysql.bash
               subPath: probe-proxysql.bash
@@ -43,14 +46,11 @@ spec:
               mountPath: /tmp/hg-scheduler.bash
               subPath: hg-scheduler.bash
             - name: {{ .Release.Name }}-config
-              mountPath: /tmp/cluster.rb
-              subPath: cluster.rb
-            - name: {{ .Release.Name }}-config
               mountPath: /root/.my.cnf
               subPath: my.cnf
-            - mountPath: /var/lib/proxysql
-              name: proxysql-var
-              readOnly: false
+            - name: {{ .Release.Name }}-config
+              mountPath: /usr/local/bin/maintain-cluster.rb
+              subPath: maintain-cluster.rb
           livenessProbe:
             exec:
               command: ["/bin/bash","/usr/local/bin/probe-proxysql.bash"]
@@ -74,6 +74,6 @@ spec:
       volumes:
         - name: {{ .Release.Name }}-config
           configMap:
-            name: {{ .Release.Name }}-proxysqlcm
+            name: {{ .Release.Name }}-cm
         - emptyDir: {}
           name: proxysql-var
