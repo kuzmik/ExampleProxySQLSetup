@@ -54,7 +54,8 @@ def create_commands(pods)
   output.append 'LOAD MYSQL VARIABLES TO RUNTIME'
   output.append 'LOAD MYSQL SERVERS TO RUNTIME'
   output.append 'LOAD MYSQL USERS TO RUNTIME'
-  output.append 'LOAD MYSQL QUERY RULES TO RUNTIME;'
+  output.append 'LOAD MYSQL QUERY RULES TO RUNTIME'
+  output.append 'SAVE PROXYSQL SERVERS TO DISK;'
 
   output.join('; ')
 end
@@ -74,7 +75,12 @@ def checksum(pods)
 
   old = File.read(checksum_file)
 
-  exit 0 if old == digest
+  # if there are no changes in the commands that would be run, run one command and exit 0
+  # this command should help followers rejoin the cluster if case the controllers all went away at once and came back
+  if old == digest
+    system('mysql -h127.0.0.1 -P6032 -uadmin -padmin -NB -e"LOAD PROXYSQL SERVERS TO RUNTIME;"')
+    exit 0
+  end
 
   # write checksum to file for next run
   File.write(checksum_file, digest)
