@@ -37,23 +37,17 @@ spec:
               name: proxysql-var
               readOnly: false
             - name: {{ .Release.Name }}-config
-              mountPath: /usr/local/bin/probe-proxysql.bash
-              subPath: probe-proxysql.bash
-            - name: {{ .Release.Name }}-config
               mountPath: /etc/proxysql.cnf
               subPath: proxysql.cnf
             - name: {{ .Release.Name }}-config
               mountPath: /root/.my.cnf
               subPath: my.cnf
-            - name: {{ .Release.Name }}-config
-              mountPath: /usr/local/bin/maintain-cluster.rb
-              subPath: maintain-cluster.rb
           livenessProbe:
             exec:
-              command: ["/bin/bash","/usr/local/bin/probe-proxysql.bash"]
+              command: ["/usr/bin/ruby", "/usr/local/bin/health-probe.rb"]
           readinessProbe:
             exec:
-              command: ["/bin/bash","/usr/local/bin/probe-proxysql.bash"]
+              command: ["/usr/bin/ruby", "/usr/local/bin/health-probe.rb"]
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
     {{- with .Values.nodeSelector }}

@@ -1,6 +1,8 @@
 # TODO and/or TOFIGUREOUT
 
 - [ ] time to tackle mysql_query_rules
+- [ ] FIGUREOUT: what happens if a new leader joins the cluster of old leaders with a different config?
+  - we might need to kill all leader pods at once to prevent cross contamination, which should be ok
 
 # DONE
 
