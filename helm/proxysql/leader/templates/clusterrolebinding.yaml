@@ -12,3 +12,17 @@ roleRef:
   name: view
   apiGroup: rbac.authorization.k8s.io
 {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: proxysql-leader-election
+  namespace: proxysql
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: proxysql-leader-election
+subjects:
+- kind: ServiceAccount
+  name: proxysql
+  namespace: proxysql

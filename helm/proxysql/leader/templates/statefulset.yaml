@@ -45,12 +45,12 @@ spec:
             - name: {{ .Release.Name }}-config
               mountPath: /root/.my.cnf
               subPath: my.cnf
-          livenessProbe:
-            exec:
-              command: ["/usr/bin/ruby", "/usr/local/bin/health-probe.rb"]
-          readinessProbe:
-            exec:
-              command: ["/usr/bin/ruby", "/usr/local/bin/health-probe.rb"]
+          # livenessProbe:
+          #   exec:
+          #     command: ["/usr/bin/ruby", "/usr/local/bin/health-probe.rb"]
+          # readinessProbe:
+          #   exec:
+          #     command: ["/usr/bin/ruby", "/usr/local/bin/health-probe.rb"]
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
     {{- with .Values.nodeSelector }}

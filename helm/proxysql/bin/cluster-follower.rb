@@ -18,7 +18,7 @@ all_count = `mysql -h127.0.0.1 -P6032 -uadmin -padmin -NB -e"#{all_command}"`.to
 # removed, or has been deployed recently and got different IPs. because we aren't using static IPs, we want to bootstrap
 # the proxysql servers again. joining the cluster will pull down data from the leaders automatically, though it tends to
 # take ~20 seconds or so once the leaders are back
-if missing_count > 0
+if missing_count.positive?
   puts "#{missing_count}/#{all_count} proxysql leaders haven't been seen in over 30s, resetting leader state"
 
   commands = [

@@ -48,12 +48,14 @@ class PreStop
     # if checks would return unhealthy, they should pass.
     FileUtils.touch('/tmp/draining')
 
-    puts "#{ENV.fetch('HOSTNAME', nil)} - ProxySQL pre-stop - Created /tmp/draining, sleeping for #{READINESS_STATE_DELAY} seconds"
+    puts "#{ENV.fetch('HOSTNAME',
+                      nil)} - ProxySQL pre-stop - Created /tmp/draining, sleeping for #{READINESS_STATE_DELAY} seconds"
     sleep READINESS_STATE_DELAY
 
     disable_new_connections
 
-    puts "#{ENV.fetch('HOSTNAME', nil)} - ProxySQL pre-stop - Connections disabled, sleeping for #{@options[:shutdown_delay]} before exit"
+    puts "#{ENV.fetch('HOSTNAME',
+                      nil)} - ProxySQL pre-stop - Connections disabled, sleeping for #{@options[:shutdown_delay]} before exit"
 
     # sleep to prevent the script from exiting, which will kill the container immediately
     sleep @options[:shutdown_delay]

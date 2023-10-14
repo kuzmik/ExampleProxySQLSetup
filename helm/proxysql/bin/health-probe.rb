@@ -121,7 +121,6 @@ OptionParser.new do |parser|
 
   # these are here as no-ops because we got rid of the options, but the k8s checks still
   # call them. remove them we redeploy.
-  # rubocop:disable Lint/EmptyBlock
   parser.on('-l') {}
   parser.on('-r') {}
   # rubocop:enable Lint/EmptyBlock
