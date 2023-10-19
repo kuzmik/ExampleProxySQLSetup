@@ -4,8 +4,8 @@
 require 'optparse'
 require 'logger'
 
-# FIXME: this might need to change with the clustering, because at boot the cluster pods won't have mysql backends... until
-# they get the info from the leaders. or maybe we just add a delay to the k8s probe
+# FIXME: this might need to change with the clustering, because at boot the satellite pods won't have mysql backends... until
+# they get the info from the core pods. or maybe we just add a delay to the k8s probe
 
 ##
 # Class that contains all of the ProxySQL related probes we want to run. Currently used for startup and readiness probes.

@@ -7,8 +7,8 @@ require 'net/http'
 require 'pathname'
 require 'uri'
 
-# query the k8s rest api and get a list of the pods in the controller cluster
-# returns a hash of { pod_ip => pod_hostname } for all the contoller pods
+# query the k8s rest api and get a list of the pods in the core cluster
+# returns a hash of { pod_ip => pod_hostname } for all the core pods
 def get_pod_info
   directory = '/run/secrets/kubernetes.io/serviceaccount'
   namespace = File.read(Pathname.new("#{directory}/namespace").realpath)
@@ -36,7 +36,7 @@ def get_pod_info
 
   # filter the pod info, and create a hash of { ip: hostname }
   # we're also sorting it, so that we can use it for hashing the checksum
-  items.reject  { |pod| pod['metadata']['labels']['app.kubernetes.io/instance'] == 'proxysql-cluster' }
+  items.reject  { |pod| pod['metadata']['labels']['app.kubernetes.io/instance'] == 'proxysql-satellite' }
        .collect { |pod| { pod['status']['podIP'] => pod['metadata']['name'] } }
        .reduce({}, :merge)
        .sort
@@ -76,7 +76,7 @@ def checksum(pods)
   old = File.read(checksum_file)
 
   # if there are no changes in the commands that would be run, run one command and exit 0
-  # this command should help followers rejoin the cluster if case the controllers all went away at once and came back
+  # this command should help satellites rejoin the cluster if case the core pods all went away at once and came back
   if old == digest
     system('mysql -h127.0.0.1 -P6032 -uadmin -padmin -NB -e"LOAD PROXYSQL SERVERS TO RUNTIME;"')
     exit 0
