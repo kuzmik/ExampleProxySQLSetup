@@ -24,6 +24,18 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+      initContainers:
+      # sample init container
+      - name: install
+        image: busybox:1.28
+        command:
+        - wget
+        - "-O"
+        - "/proxysql/index.html"
+        - http://info.cern.ch
+        volumeMounts:
+        - name: proxysql-var
+          mountPath: "/proxysql"
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
