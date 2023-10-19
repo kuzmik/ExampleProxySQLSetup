@@ -51,6 +51,6 @@ SET mysql-eventslog_filename = '/tmp/mysql_events.log';
 INSERT INTO mysql_query_rules (active, match_digest, log, apply) VALUES (1, '.', 0, 0);
 
 # match select count queries and DO log them, but don't redirect them
-insert into mysql_query_rules (active, match_pattern, log, apply) values (1, 'select count*', 1, 1);
+INSERT INTO mysql_query_rules (active, match_pattern, log, apply) VALUES (1, 'select count*', 1, 1);
 ```
 

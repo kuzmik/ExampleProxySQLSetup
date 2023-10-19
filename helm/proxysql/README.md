@@ -39,7 +39,7 @@ NAME                                           READY   AGE
 statefulset.apps/proxysql-core   3/3     28s
 ```
 
-## Cluster satellites pods (3)
+## Cluster satellite pods (3)
 
 Charts for this deployment are in the [satellite](satellite) directory.
 
@@ -52,3 +52,9 @@ helm install proxysql-satellite -n proxysql ./helm/proxysql/satellite
 This is the part of the proxysql cluster that will actually serve mysql traffic. On boot, each pod will connect to the `proxysql-core` service (see above), which will distribute the configuration to the pod. This will allow scaling in and out to be easier and any new pods will automatically join the "cluster" so to speak.
 
 Configuration changes on these pods will NOT propagate up to the core pods, and therefore will not make it to any other proxysql pod.
+
+
+## Misc
+
+* How to [
+Disable portions of the annotations feature](https://github.com/sysown/proxysql/issues/4325#issuecomment-1681630863)

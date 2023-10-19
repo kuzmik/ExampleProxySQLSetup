@@ -89,7 +89,6 @@ assert_false() {
 }
 
 assert_array_eq() {
-
   declare -a expected=("${!1-}")
   # echo "AAE ${expected[@]}"
 
@@ -119,7 +118,6 @@ assert_array_eq() {
 }
 
 assert_array_not_eq() {
-
   declare -a expected=("${!1-}")
   declare -a actual=("${!2}")
 
