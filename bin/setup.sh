@@ -59,9 +59,9 @@ kubectl get namespace proxysql > /dev/null 2>&1 \
   || kubectl create ns proxysql
 
 ## ProxySQL leader cluster, which manages the configuration state of the rest of the cluster
-helm install proxysql-leader -n proxysql ./helm/proxysql/leader
+helm install proxysql-core -n proxysql ./helm/proxysql/core
 
 ## ProxySQL main cluster, which will be serving the actual proxied sql traffic
-helm install proxysql-cluster -n proxysql ./helm/proxysql/cluster
+helm install proxysql-satellite -n proxysql ./helm/proxysql/satellite
 
 # End ProxySQL infra

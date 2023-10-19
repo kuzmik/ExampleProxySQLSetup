@@ -9,8 +9,8 @@ if [[ "$context" != "orbstack" ]] && [[ "$context" != "docker-desktop" ]]; then
   exit 1
 fi
 
-helm uninstall -n proxysql proxysql-leader
-helm uninstall -n proxysql proxysql-cluster
+helm uninstall -n proxysql proxysql-core
+helm uninstall -n proxysql proxysql-satellite
 
 helm uninstall -n mysql mysql-us1
 helm uninstall -n mysql mysql-us2

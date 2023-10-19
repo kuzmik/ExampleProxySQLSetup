@@ -14,10 +14,10 @@ Run [./bin/setup.sh](./bin/setup.sh) to create the test infra:
 
 1. A us1 mysql instance with one read only replica
 1. A us2 mysql instance with one read only replica
-1. A `proxysql-cluster-controller` cluster of 3 pods
+1. A `proxysql-core` deployment consisting of 3 pods
     * This cluster controls the configuration of the rest of the cluster, and does not serve sql traffic
-1. A `proxysql-cluster` cluster of 3 pods
-    * This cluster gets configuration from the controllers, and is what serves the sql traffic
+1. A `proxysql-satellite` deployment consisting of 3 pods
+    * This cluster gets configuration from the core, and is what serves the sql traffic
 
 ### Create the MySQL cluster
 
@@ -57,15 +57,15 @@ helm install mysql-us2 -n mysql ./helm/mysql \
 
 ### Create the ProxySQL cluster
 
-For this step, we're creating a proxysql controller statefulset and a proxysql cluster deployment. The controller is the "leader" and is in charge of distributing the configuration changes to the followers. The followers are configured to automatically connect to the leader.
+For this step, we're creating a proxysql core statefulset cluster and a proxysql satellite deployment cluster. The core cluster is the "leader" and is in charge of distributing the configuration changes to the satellite cluster. The satellites are configured to automatically connect to the core service on boot.
 
 ```shell
 kubectl get namespace proxysql > /dev/null 2>&1 \
   || kubectl create ns proxysql
 
-helm install proxysql-cluster-controller -n proxysql ./helm/proxysql/cluster-controller
+helm install proxysql-core -n proxysql ./helm/proxysql/core
 
-helm install proxysql-cluster -n proxysql ./helm/proxysql/cluster-follower
+helm install proxysql-satellite -n proxysql ./helm/proxysql/satellite
 ```
 
 -----
@@ -103,9 +103,9 @@ kubectl run mysql-us2-client --rm --tty -i --restart='Never' --image  docker.io/
 Connect to us1 or us2 via proxysql
 
 ```shell
-mysql -h$(kubectl get service proxysql-cluster -n proxysql --output jsonpath='{.spec.clusterIP}') -P6033 -upersona-web-us1 -ppersona-web-us1 persona-web-us1
+mysql -h$(kubectl get service proxysql-satellite -n proxysql --output jsonpath='{.spec.clusterIP}') -P6033 -upersona-web-us1 -ppersona-web-us1 persona-web-us1
 
-mysql -h$(kubectl get service proxysql-cluster -n proxysql --output jsonpath='{.spec.clusterIP}') -P6033 -upersona-web-us2 -ppersona-web-us2 persona-web-us2
+mysql -h$(kubectl get service proxysql-satellite -n proxysql --output jsonpath='{.spec.clusterIP}') -P6033 -upersona-web-us2 -ppersona-web-us2 persona-web-us2
 ```
 
 -----
@@ -113,8 +113,8 @@ mysql -h$(kubectl get service proxysql-cluster -n proxysql --output jsonpath='{.
 ## Teardown
 
 ```shell
-helm uninstall -n proxysql proxysql-cluster
-helm uninstall -n proxysql proxysql-cluster-controller
+helm uninstall -n proxysql proxysql-core
+helm uninstall -n proxysql proxysql-satellite
 
 helm uninstall -n mysql mysql-us1
 helm uninstall -n mysql mysql-us2

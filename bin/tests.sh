@@ -5,7 +5,7 @@ DIR=$(dirname -- "${BASH_SOURCE[0]}")
 
 source "$DIR/.lib/assert.sh"
 
-proxysql_instance=$(kubectl get service proxysql-cluster -n proxysql --output jsonpath='{.spec.clusterIP}')
+proxysql_instance=$(kubectl get service proxysql-satellite -n proxysql --output jsonpath='{.spec.clusterIP}')
 
 echo "----- us1 primary -----"
 
