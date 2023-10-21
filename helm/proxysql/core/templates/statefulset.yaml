@@ -57,6 +57,9 @@ spec:
             - name: {{ .Release.Name }}-config
               mountPath: /root/.my.cnf
               subPath: my.cnf
+            - name: {{ .Release.Name }}-passwords
+              mountPath: "/var/lib/proxysql/secrets"
+              readOnly: true
           livenessProbe:
             exec:
               command: ["/usr/bin/ruby", "/usr/local/bin/health-probe.rb"]
@@ -78,8 +81,11 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       volumes:
+        - emptyDir: {}
+          name: proxysql-var
         - name: {{ .Release.Name }}-config
           configMap:
             name: {{ .Release.Name }}-cm
-        - emptyDir: {}
-          name: proxysql-var
+        - name: {{ .Release.Name }}-passwords
+          secret:
+            secretName: {{ .Release.Name }}-passwords
