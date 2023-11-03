@@ -9,11 +9,11 @@ if [[ "$context" != "orbstack" ]] && [[ "$context" != "docker-desktop" ]]; then
   exit 1
 fi
 
-helm uninstall -n proxysql proxysql-core
-helm uninstall -n proxysql proxysql-satellite
+helm uninstall -n proxysql --ignore-not-found proxysql-core
+helm uninstall -n proxysql --ignore-not-found proxysql-satellite
 
-helm uninstall -n mysql mysql-us1
-helm uninstall -n mysql mysql-us2
+helm uninstall -n mysql --ignore-not-found mysql-us1
+helm uninstall -n mysql --ignore-not-found mysql-us2
 
 # Probably all we _really_ need to do here is delete the namespaces, but then helm might get confused
 kubectl delete ns proxysql

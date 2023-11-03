@@ -18,6 +18,8 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "proxysql.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+        app: proxysql
+        component: core
     spec:
       serviceAccountName: proxysql
     {{- with .Values.imagePullSecrets }}
@@ -29,14 +31,18 @@ spec:
       - name: install
         image: busybox:1.28
         command:
-        - wget
-        - "-O"
-        - "/proxysql/index.html"
-        - http://info.cern.ch
+        - env
         volumeMounts:
         - name: proxysql-var
           mountPath: "/proxysql"
       containers:
+        - name: proxysql-clustering
+          image: proxysql-clustering:latest
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /proxysql-clustering
+            - --pause=5
+            - --core
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -60,12 +66,12 @@ spec:
             - name: {{ .Release.Name }}-passwords
               mountPath: "/var/lib/proxysql/secrets"
               readOnly: true
-          livenessProbe:
-            exec:
-              command: ["/usr/bin/ruby", "/usr/local/bin/health-probe.rb"]
-          readinessProbe:
-            exec:
-              command: ["/usr/bin/ruby", "/usr/local/bin/health-probe.rb"]
+          # livenessProbe:
+          #   exec:
+          #     command: ["/usr/bin/ruby", "/usr/local/bin/health-probe.rb"]
+          # readinessProbe:
+          #   exec:
+          #     command: ["/usr/bin/ruby", "/usr/local/bin/health-probe.rb"]
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
     {{- with .Values.nodeSelector }}
