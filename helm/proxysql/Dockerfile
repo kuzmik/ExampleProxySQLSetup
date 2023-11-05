@@ -10,6 +10,7 @@ RUN apt-get update && apt-get -u upgrade -y && apt-get install -y --no-install-r
   lsof \
   procps \
   ruby \
+  netcat \
   vim && \
   apt-get autoremove -y && \
   apt-get clean && \

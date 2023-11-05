@@ -1,6 +1,5 @@
 # TODO and/or TOFIGUREOUT
 
-- [ ] time to tackle mysql_query_rules
 - [ ] FIGUREOUT: what happens if a new core pod joins the cluster of old core pods that have a different config?
   - we might need to kill all core pods at once to prevent cross contamination, which should be ok
 
@@ -26,3 +25,4 @@
     3. maintain-cluster.rb ran `LOAD MYSQL QUERY RULES TO RUNTIME` which propagated an empty query rules set to the satellites
     4. RIP my test rule on the satellite pod
   - i think this is perfectly acceptable, we should not expect satellites to have their own state, and should fully expect any changes NOT initiated by a core to get wiped out at any time
+- [X] time to tackle mysql_query_rules
