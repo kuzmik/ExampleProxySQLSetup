@@ -29,5 +29,3 @@ func New(dsn string) (*ProxySQL, error) {
 
 	return &ProxySQL{dsn, conn, logger}, nil
 }
-
-

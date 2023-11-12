@@ -3,6 +3,7 @@ module github.com/kuzmik/proxysql-cluster-agent
 go 1.21.3
 
 require (
+	github.com/davecgh/go-spew v1.1.1
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/rs/zerolog v1.31.0
 	k8s.io/apimachinery v0.28.3
@@ -10,7 +11,6 @@ require (
 )
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect

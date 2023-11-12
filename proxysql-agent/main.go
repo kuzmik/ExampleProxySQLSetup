@@ -3,25 +3,26 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net"
 	"os"
-	"strings"
 	"time"
 
+	//"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog"
+
 	"github.com/kuzmik/proxysql-cluster-agent/proxysql"
 )
 
 var (
-	logger zerolog.Logger
-	psql   *proxysql.ProxySQL
-
-	coreModeFlag      bool
-	satelliteModeFlag bool
-	userFlag          string
-	passwordFlag      string
-	addressFlag       string
-	pauseFlag         int
+	logger              zerolog.Logger
+	psql                *proxysql.ProxySQL
+	coreModeFlag        bool
+	satelliteModeFlag   bool
+	userFlag            string
+	passwordFlag        string
+	addressFlag         string
+	pauseFlag           int
+	restInterfaceFlag   bool
+	socketInterfaceFlag bool
 )
 
 func main() {
@@ -41,6 +42,9 @@ func main() {
 	flag.BoolVar(&coreModeFlag, "core", false, "Run the functions required for core pods")
 	flag.BoolVar(&satelliteModeFlag, "satellite", false, "Run the functions required for satellite pods")
 
+	flag.BoolVar(&restInterfaceFlag, "http", false, "Start the http rest interface")
+	flag.BoolVar(&socketInterfaceFlag, "unix", false, "Start the unix socket interface")
+
 	flag.Parse()
 
 	// If command line arguments are not set, use default values
@@ -52,6 +56,16 @@ func main() {
 	}
 	if addressFlag == "" {
 		addressFlag = "127.0.0.1:6032"
+	}
+
+	// start the unix socket interface if enabled
+	if socketInterfaceFlag {
+		go setupUnixSocket()
+	}
+
+	// start the rest API if enabled
+	if restInterfaceFlag {
+		go StartAPI()
 	}
 
 	logger.Debug().
@@ -73,7 +87,9 @@ func main() {
 		go psql.Satellite()
 	}
 
-	setupUnixSocket()
+	for {
+		// just loop, i guess.
+	}
 }
 
 func setupLogger() {
@@ -84,84 +100,11 @@ func setupLogger() {
 
 func setupProxySQL() {
 	var err error
+
 	dsn := fmt.Sprintf("%s:%s@tcp(%s)/", userFlag, passwordFlag, addressFlag)
+
 	psql, err = proxysql.New(dsn)
 	if err != nil {
 		logger.Error().Err(err).Msg("Unable to connect to ProxySQL")
 	}
-}
-
-func setupUnixSocket() {
-	socketPath := "/tmp/proxysql_cnc.sock"
-	os.Remove(socketPath)
-
-	listener, err := net.Listen("unix", socketPath)
-	if err != nil {
-		logger.Error().Err(err).Str("socket", socketPath).Msg("Unable to create unix socket")
-		return
-	}
-	defer listener.Close()
-
-	logger.Info().Str("path", socketPath).Msg("Unix socket listening for commands")
-
-	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			logger.Error().Err(err).Str("socket", socketPath).Msg("Unable to read from unix socket")
-			continue
-		}
-
-		go handleSocketCommand(conn)
-	}
-}
-
-func handleSocketCommand(conn net.Conn) {
-	defer conn.Close()
-
-	buffer := make([]byte, 1024)
-	n, err := conn.Read(buffer)
-	if err != nil {
-		logger.Error().Err(err).Msg("Error reading from socket")
-		return
-	}
-
-	command := strings.TrimRight(string(buffer[:n]), "\n")
-	logger.Debug().Str("command", command).Msg("Got command from socket")
-
-	var msg string
-
-	switch command {
-	case "ping":
-		go psql.Ping()
-		msg = "PONG"
-
-	case "get_backends":
-		backends, err := psql.GetBackends()
-		if err != nil {
-			logger.Error().Err(err).Msg("Error in running Backends")
-		}
-
-		for host, id := range backends {
-			logger.Info().Str("hostname", host).Int("hg", id).Send()
-			msg = fmt.Sprintf("hg:%d, host:%s", id, host)
-			conn.Write([]byte(msg + "\n"))
-		}
-
-	case "resync":
-		go psql.SatelliteResync()
-		msg = "Running resync"
-
-	case "get_core_pods":
-		// go clustering.GetPods("core")
-		msg = "Got core pods" //FIXME
-
-	case "get_satellite_pods":
-		// go clustering.GetPods("satellite")
-		msg = "Got satellite pods" //FIXME
-
-	default:
-		logger.Warn().Str("command", command).Msg("Unprocessable command received")
-		msg = fmt.Sprintf("Unprocessable command: %s", command)
-	}
-	conn.Write([]byte(msg + "\n"))
 }
