@@ -36,13 +36,13 @@ spec:
         - name: proxysql-var
           mountPath: "/proxysql"
       containers:
-        - name: proxysql-clustering
-          image: proxysql-clustering:latest
+        - name: proxysql-agent
+          image: proxysql-agent:latest
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - /proxysql-clustering
-            - --pause=5
-            - --core
+            - /proxysql-agent
+            - --start_delay=5
+            - --run_mode=core
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}

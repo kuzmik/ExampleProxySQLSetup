@@ -16,5 +16,5 @@ helm uninstall -n mysql --ignore-not-found mysql-us1
 helm uninstall -n mysql --ignore-not-found mysql-us2
 
 # Probably all we _really_ need to do here is delete the namespaces, but then helm might get confused
-kubectl delete ns proxysql
-kubectl delete ns mysql
+kubectl delete ns --ignore-not-found proxysql
+kubectl delete ns --ignore-not-found mysql

@@ -32,8 +32,8 @@ assert_eq "1" "$us1_secondary_ro" "Not equivalent"
 log_success  "us1_secondary readonly flag: 1 == $us1_secondary_ro"
 
 us1_secondary_user=$(mysql --defaults-extra-file="$DIR/.lib/us1-client.cfg"  -h"$proxysql_instance" -P6033  persona-web-us1 -NB -e 'select email from users where id = 1')
-assert_eq "rick@persona-us1.com" "$us1_user" "Not equivalent"
-log_success  "us1_secondary user: rick@persona-us1.com == $us1_user"
+assert_eq "rick@persona-us1.com" "$us1_secondary_user" "Not equivalent"
+log_success  "us1_secondary user: rick@persona-us1.com == $us1_secondary_user"
 
 log_header "us2 primary"
 
@@ -60,8 +60,8 @@ assert_eq "1" "$us2_secondary_ro" "Not equivalent"
 log_success  "us2_secondary readonly flag: 1 == $us2_secondary_ro"
 
 us2_secondary_user=$(mysql --defaults-extra-file="$DIR/.lib/us2-client.cfg"  -h"$proxysql_instance" -P6033  persona-web-us2 -NB -e 'select email from users where id = 1')
-assert_eq "charles@persona-us2.com" "$us2_user" "Not equivalent"
-log_success  "us2_secondary user: charles@persona-us2.com == $us2_user"
+assert_eq "charles@persona-us2.com" "$us2_secondary_user" "Not equivalent"
+log_success  "us2_secondary user: charles@persona-us2.com == $us2_secondary_user"
 
 echo ''
 log_success  '-*-*-*-*- all tests passed, insert emojis here -*-*-*-*-'

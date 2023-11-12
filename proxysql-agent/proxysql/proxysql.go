@@ -44,8 +44,8 @@ func (p *ProxySQL) PersistChanges() error {
 
 func (p *ProxySQL) GetBackends() (map[string]int, error) {
 	entries := make(map[string]int)
-	rows, err := p.conn.Query("select hostgroup_id, hostname, port from runtime_mysql_servers order by hostgroup_id")
 
+	rows, err := p.conn.Query("SELECT hostgroup_id, hostname, port FROM runtime_mysql_servers ORDER BY hostgroup_id")
 	if err != nil {
 		return nil, err
 	}
