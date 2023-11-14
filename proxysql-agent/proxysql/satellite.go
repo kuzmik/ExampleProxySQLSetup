@@ -4,6 +4,8 @@ import (
 	"time"
 )
 
+// TODO: if ONLY proxysql-core is in the list, we're running on defaults and that seems bad
+
 func (p *ProxySQL) Satellite() {
 	p.logger.Info().Msg("Satellite mode initialized; looping every 10s")
 
@@ -46,16 +48,17 @@ func (p *ProxySQL) GetMissingCorePods() (int, error) {
 // by executing predefined SQL commands.
 //
 // If there are missing core pods, it logs the number of missing cores and resyncs the configuration using the following commands:
-//  1. "LOAD PROXYSQL SERVERS FROM CONFIG"
-//  2. "LOAD PROXYSQL SERVERS TO RUNTIME"
+//  1. "DELETE FROM proxysql_servers"
+//  2. "LOAD PROXYSQL SERVERS FROM CONFIG"
+//  3. "LOAD PROXYSQL SERVERS TO RUNTIME"
 //
-// If there are no missing core pods, it logs that no resync is necessary.
+// If there are no missing core pods, it does nothing.
 //
 // Parameters:
 // - p: A pointer to the ProxySQL instance with an active database connection.
 //
 // Returns:
-// - error: An error, if any occurred during the resynchronization process.
+// - error: if any occurred during the resynchronization process.
 func (p *ProxySQL) SatelliteResync() error {
 	var missing = -1
 	var err error
@@ -69,6 +72,7 @@ func (p *ProxySQL) SatelliteResync() error {
 		p.logger.Debug().Int("missing_cores", missing).Msg("Resyncing pod to cluster")
 
 		commands := []string{
+			"DELETE FROM proxysql_servers",
 			"LOAD PROXYSQL SERVERS FROM CONFIG",
 			"LOAD PROXYSQL SERVERS TO RUNTIME;",
 		}

@@ -33,11 +33,11 @@ func main() {
 	addressEnv := os.Getenv("PROXYSQL_ADDRESS")
 
 	// If environment variables are not set, use command line arguments
-	flag.StringVar(&userFlag, "user", userEnv, "ProxySQL username")
-	flag.StringVar(&passwordFlag, "password", passwordEnv, "ProxySQL password")
-	flag.StringVar(&addressFlag, "address", addressEnv, "ProxySQL address")
+	flag.StringVar(&userFlag, "user", userEnv, "ProxySQL admin username")
+	flag.StringVar(&passwordFlag, "password", passwordEnv, "ProxySQL admin password")
+	flag.StringVar(&addressFlag, "address", addressEnv, "ProxySQL admin address. Expects form of HOSTNAME/IP:PORT")
 
-	flag.IntVar(&pauseFlag, "pause", 0, "Seconds to pause before attempting to start")
+	flag.IntVar(&pauseFlag, "pause", 0, "Seconds to pause before attempting to start; gives the proxysql containers time to come up")
 
 	flag.BoolVar(&coreModeFlag, "core", false, "Run the functions required for core pods")
 	flag.BoolVar(&satelliteModeFlag, "satellite", false, "Run the functions required for satellite pods")
@@ -83,6 +83,7 @@ func main() {
 
 	if coreModeFlag {
 		go psql.Core()
+		//psql.Leader()
 	} else if satelliteModeFlag {
 		go psql.Satellite()
 	}

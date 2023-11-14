@@ -11,6 +11,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	//"k8s.io/client-go/tools/clientcmd"
+	//"k8s.io/client-go/tools/leaderelection"
+	//"k8s.io/client-go/tools/leaderelection/resourcelock"
 )
 
 // PodInfo represents information about a Kubernetes pod.
@@ -30,7 +33,7 @@ func (p *ProxySQL) Core() {
 }
 
 func (p *ProxySQL) coreLoop() {
-	pods, err := GetCorePods()
+	pods, err := p.GetCorePods()
 	if err != nil {
 		p.logger.Error().Err(err).Msg("Failed to get pod info")
 		return
@@ -73,23 +76,21 @@ func (p *ProxySQL) coreLoop() {
 	p.logger.Debug().Str("commands", strings.Join(commands, "; ")).Send()
 }
 
-func GetCorePods() ([]PodInfo, error) {
+func (p *ProxySQL) GetCorePods() ([]PodInfo, error) {
 	// FIXME: make this, and labels, configurable
 	app := "proxysql"
 
-	config, err := rest.InClusterConfig()
+	clientset, err := getK8sClient()
 	if err != nil {
-		return nil, err
+		p.logger.Error().Err(err).Msg("Unable to get k8s client")
 	}
 
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return nil, err
-	}
-
-	pods, _ := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("app=%s,component=core", app),
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	var corePods []PodInfo
 	for _, pod := range pods.Items {
@@ -128,4 +129,18 @@ func createCommands(pods []PodInfo) []string {
 	)
 
 	return commands
+}
+
+func getK8sClient() (*kubernetes.Clientset, error) {
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+
+	return clientset, nil
 }

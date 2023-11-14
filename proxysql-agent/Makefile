@@ -39,4 +39,4 @@ run: build
 	@./$(TARGET)
 
 docker: clean
-	@docker build . -t proxysql-clustering
+	@docker build . -t proxysql-agent

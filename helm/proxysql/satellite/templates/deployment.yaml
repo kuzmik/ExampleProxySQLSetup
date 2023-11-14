@@ -24,11 +24,11 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       containers:
-        - name: proxysql-clustering
-          image: proxysql-clustering:latest
+        - name: proxysql-agent
+          image: proxysql-agent:latest
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - /proxysql-clustering
+            - /proxysql-agent
             - --pause=5
             - --satellite
         - name: {{ .Chart.Name }}

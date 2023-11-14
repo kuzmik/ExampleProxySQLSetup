@@ -13,7 +13,7 @@ COPY . .
 RUN apt-get update && apt-get install -y netcat-openbsd
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o /proxysql-clustering
+RUN CGO_ENABLED=0 GOOS=linux go build -o /proxysql-agent
 
 # Run
-CMD ["/proxysql-clustering"]
+CMD ["/proxysql-agent"]
